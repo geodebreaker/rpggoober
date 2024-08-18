@@ -67,9 +67,9 @@ function loop() {
   var w = Math.ceil(WIDTH/SQSIZE)+1;
   for (var i = 0; i < h; i++) {
     for (var j = 0; j < w; j++) {
-      var p = new V(i, j).mul(SQSIZE).add(cam.pos);
+      var p = new V(i, j).mul(SQSIZE).sub(cam.pos);
+      __.img(img, [p.x, p.y, SQSIZE, SQSIZE]);
       mkdraw(p.y, () => {
-        __.img(img, [p.x, p.y, SQSIZE, SQSIZE]);
       });
     }
   }
