@@ -2,16 +2,15 @@ var plr;
 var cam;
 
 function start() {
-  ge.loadpic('cobble.jpg', 'cobble');
   initTileset({
     0: [],
-    1: ['cobble.jpg', 0],
-    2: ['brick.jpg', 1],
+    1: ['grass.png'],
+    2: ['bush.png'],
   });
   initWorld();
 
   plr = new Actor(
-    new V(0, 0),
+    new V(HWSIZE, HWSIZE).sub(0.5).mul(SQSIZE),
     [
       ['plr_idle_l.png', 1, 0.5],
       ['plr_idle_d.png', 1, 0.5],
@@ -52,41 +51,50 @@ function loop() {
 
   if (cam.fixed)
     cam.pos = new V(plr.pos);
-  cam.pos.add(HWSIZE * SQSIZE);
-  cam.pos.x = Math.abs(cam.pos.x) > WSIZE * SQSIZE + WIDTH ?
-    Math.sign(cam.pos.x) * WSIZE * SQSIZE + WIDTH : cam.pos.x;
-  cam.pos.y = Math.abs(cam.pos.y) > WSIZE * SQSIZE + HEIGHT ?
-    Math.sign(cam.pos.y) * WSIZE * SQSIZE + HEIGHT : cam.pos.y;
-  cam.pos.sub(HWSIZE * SQSIZE);
+  if (cam.pos.x > (WSIZE - 1) * SQSIZE - center.x)
+    cam.pos.x = (WSIZE - 1) * SQSIZE - center.x;
+  if (cam.pos.y > (WSIZE - 1) * SQSIZE - center.y)
+    cam.pos.y = (WSIZE - 1) * SQSIZE  - center.y;
+  if (cam.pos.x < center.x)
+    cam.pos.x = center.x;
+  if (cam.pos.y < center.y)
+    cam.pos.y = center.y;
 
   mkdraw(plr.pos.y, () => {
     var i = plr.anim.current;
     __.img(i, [plr.pos.x, plr.pos.y, SQSIZE, SQSIZE]);
   });
 
+  // mkdraw(Infinity, () => {
+  //   var i = plr.anim.current;
+  //   __.img(i, [plr.pos.x, plr.pos.y, SQSIZE, SQSIZE]);
+  // });
+
   var h = Math.ceil(HEIGHT / SQSIZE) + 1;
   var w = Math.ceil(WIDTH / SQSIZE) + 1;
-  for (var i = 0; i < w; i++) {
-    for (var j = 0; j < h; j++) {
-      var camp = new V(cam.pos).div(SQSIZE);
-      camp.x = Math.floor(camp.x);
-      camp.y = Math.floor(camp.y);
-      camp.add(i, j);
+  for (var z = 0; z < 2; z++) {
+    for (var i = 0; i < w; i++) {
+      for (var j = 0; j < h; j++) {
+        var camp = new V(cam.pos).sub(center).div(SQSIZE);
+        camp.x = Math.floor(camp.x);
+        camp.y = Math.floor(camp.y);
+        camp.add(i, j);
 
-      var c = world.tiles[camp.x];
-      if(c == undefined)
-        continue;
-      c = c[camp.y];
-      if(c == undefined)
-        continue;
+        var c = world.tiles[z][camp.x];
+        if (c == undefined)
+          continue;
+        c = c[camp.y];
+        if (c == undefined)
+          continue;
 
-      var p = camp.mul(SQSIZE).sub(center);
-      mkdraw(
-        c.ref.layer == 1 ? p.y : -Infinity,
-        (c, px, py) => {
-          __.img(c.ref.tex, [px, py, SQSIZE, SQSIZE]);
-        }, c, p.x, p.y
-      );
+        var p = camp.mul(SQSIZE);
+        mkdraw(
+          z == 1 ? p.y : -Infinity,
+          (c, px, py) => {
+            __.img(c.ref.tex, [px, py, SQSIZE, SQSIZE]);
+          }, c, p.x, p.y
+        );
+      }
     }
   }
 
