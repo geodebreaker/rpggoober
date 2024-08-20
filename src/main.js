@@ -1,41 +1,43 @@
-var FPS = 30;
-
-var SQSIZE = 50;
-var WSIZE = 10;
-var HWSIZE = WSIZE / 2;
-
-var plr = {
-  pos: new V(100, 100),
-  vel: new V(0, 0),
-  anim: {
-    l: [
-      new animation('plr_idle_l.png', 1, 0.5),
-      new animation('plr_idle_d.png', 1, 0.5),
-      new animation('plr_idle_r.png', 1, 0.5),
-      new animation('plr_idle_u.png', 1, 0.5),
-    ],
-    f: 1,
-  },
-  con: {
-    speed: 3,
-    drag: 0.7,
-  }
-};
-
-var cam = {
-  pos: new V(0, 0),
-  fixed: true,
-}
+var plr;
+var cam;
 
 function start() {
-  ge.loadpic('cobble.jpg', 'cobble')
+  ge.loadpic('cobble.jpg', 'cobble');
+  initTileset({
+    0: [],
+    1: ['cobble.jpg', 0],
+    2: ['brick.jpg', 1],
+  });
+  initWorld();
+
+  plr = new Actor(
+    new V(0, 0),
+    [
+      ['plr_idle_l.png', 1, 0.5],
+      ['plr_idle_d.png', 1, 0.5],
+      ['plr_idle_r.png', 1, 0.5],
+      ['plr_idle_u.png', 1, 0.5],
+    ],
+  );
+  plr.anim.f = 1;
+
+  cam = {
+    pos: new V(0, 0),
+    fixed: true,
+  }
 }
 
+var center;
 function loop() {
+  // WIDTH /= 2;
+  // HEIGHT /= 2;
+
+  center = new V(WIDTH, HEIGHT).sub(SQSIZE).mul(0.5);
+
   var d = new V(
     ((input.k.d || input.k.arrowright) ?? 0) - ((input.k.a || input.k.arrowleft) ?? 0),
-    ((input.k.w || input.k.arrowdown) ?? 0) - ((input.k.s || input.k.arrowup) ?? 0),
-  ).norm().mul(plr.con.speed);
+    ((input.k.s || input.k.arrowdown) ?? 0) - ((input.k.w || input.k.arrowup) ?? 0),
+  ).norm().mul(PLRCON.speed);
 
   if (d.mag > 0) {
     var o = plr.anim.f;
@@ -45,7 +47,7 @@ function loop() {
     }
   }
 
-  plr.vel.add(d).mul(plr.con.drag);
+  plr.vel.add(d).mul(PLRCON.drag);
   plr.pos.add(plr.vel);
 
   if (cam.fixed)
@@ -58,19 +60,33 @@ function loop() {
   cam.pos.sub(HWSIZE * SQSIZE);
 
   mkdraw(plr.pos.y, () => {
-    var i = plr.anim.l[plr.anim.f].current;
+    var i = plr.anim.current;
     __.img(i, [plr.pos.x, plr.pos.y, SQSIZE, SQSIZE]);
   });
 
-  var img = ge.getpic('cobble');
-  var h = Math.ceil(HEIGHT/SQSIZE)+1;
-  var w = Math.ceil(WIDTH/SQSIZE)+1;
-  for (var i = 0; i < h; i++) {
-    for (var j = 0; j < w; j++) {
-      var p = new V(i, j).mul(SQSIZE).sub(cam.pos);
-      __.img(img, [p.x, p.y, SQSIZE, SQSIZE]);
-      mkdraw(p.y, () => {
-      });
+  var h = Math.ceil(HEIGHT / SQSIZE) + 1;
+  var w = Math.ceil(WIDTH / SQSIZE) + 1;
+  for (var i = 0; i < w; i++) {
+    for (var j = 0; j < h; j++) {
+      var camp = new V(cam.pos).div(SQSIZE);
+      camp.x = Math.floor(camp.x);
+      camp.y = Math.floor(camp.y);
+      camp.add(i, j);
+
+      var c = world.tiles[camp.x];
+      if(c == undefined)
+        continue;
+      c = c[camp.y];
+      if(c == undefined)
+        continue;
+
+      var p = camp.mul(SQSIZE).sub(center);
+      mkdraw(
+        c.ref.layer == 1 ? p.y : -Infinity,
+        (c, px, py) => {
+          __.img(c.ref.tex, [px, py, SQSIZE, SQSIZE]);
+        }, c, p.x, p.y
+      );
     }
   }
 
@@ -78,14 +94,16 @@ function loop() {
 }
 
 var todraw = [];
-mkdraw = (z, cb) => todraw.push({ z, cb });
+mkdraw = (z, cb, ...d) => todraw.push({ z, cb, d });
 
 function draw() {
   _.save();
+  _.rect(0, 0, WIDTH, HEIGHT);
+  _.clip();
   _.translate(-cam.pos.x, -cam.pos.y);
-  _.translate((WIDTH - SQSIZE) / 2, (HEIGHT - SQSIZE) / 2);
+  _.translate(center.x, center.y);
   todraw.sort((a, b) => a.z - b.z);
-  todraw.forEach(x => x.cb());
+  todraw.forEach(x => x.cb(...x.d));
   todraw = [];
   _.restore();
 }
