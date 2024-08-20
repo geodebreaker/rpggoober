@@ -30,6 +30,7 @@ function start() {
 var center;
 var mouse;
 var mousedown;
+var mousetype;
 function loop() {
   // WIDTH /= 2;
   // HEIGHT /= 2;
@@ -54,19 +55,23 @@ function loop() {
   );
 
   if (
-    input.m.l && !mousedown &&
+    input.m.l &&
     mouse.x >= 0 && mouse.x < WSIZE &&
     mouse.y >= 0 && mouse.y < WSIZE
   ) {
     var t = world.tiles[1][mouse.x][mouse.y];
-    t.type = t.type == 0 ? 2 : 0;
-    t.update();
+    if (!mousedown)
+      mousetype = t.type == 0 ? 2 : 0;
+    if (t.type != mousetype) {
+      t.type = mousetype;
+      t.update();
+    }
   }
 
   var d = new V(
     ((input.k.d || input.k.arrowright) ?? 0) - ((input.k.a || input.k.arrowleft) ?? 0),
     ((input.k.s || input.k.arrowdown) ?? 0) - ((input.k.w || input.k.arrowup) ?? 0),
-  ).norm().mul(PLRCON.speed * (1/PLRCON.drag));
+  ).norm().mul(PLRCON.speed * (1 / PLRCON.drag));
 
   if (d.mag > 0) {
     var o = plr.anim.f;
