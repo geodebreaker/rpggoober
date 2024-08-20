@@ -2,10 +2,11 @@ var plr;
 var cam;
 
 function start() {
+  ge.loadpic('select.png', 'select');
   initTileset({
-    0: [],
-    1: ['grass.png'],
-    2: ['bush.png'],
+    0: ['', true],
+    1: ['grass.png', false],
+    2: ['bush.png', false],
   });
   initWorld();
 
@@ -27,16 +28,45 @@ function start() {
 }
 
 var center;
+var mouse;
+var mousedown;
 function loop() {
   // WIDTH /= 2;
   // HEIGHT /= 2;
 
   center = new V(WIDTH, HEIGHT).sub(SQSIZE).mul(0.5);
+  mouse = new V(
+    Math.floor((input.m.x + cam.pos.x - center.x) / SQSIZE),
+    Math.floor((input.m.y + cam.pos.y - center.y) / SQSIZE)
+  );
+
+  // mkdraw(
+  //   Infinity,
+  //   () => {
+  //     __.text(`(${mouse.x}, ${mouse.y})`, cam.pos.x-center.x, cam.pos.y-center.y+5, "white")
+  //   }
+  // );
+  mkdraw(
+    Infinity,
+    () => {
+      __.img(ge.getpic('select'), [mouse.x * SQSIZE, mouse.y * SQSIZE, SQSIZE, SQSIZE], undefined, 0.5)
+    }
+  );
+
+  if (
+    input.m.l && !mousedown &&
+    mouse.x >= 0 && mouse.x < WSIZE &&
+    mouse.y >= 0 && mouse.y < WSIZE
+  ) {
+    var t = world.tiles[1][mouse.x][mouse.y];
+    t.type = t.type == 0 ? 2 : 0;
+    t.update();
+  }
 
   var d = new V(
     ((input.k.d || input.k.arrowright) ?? 0) - ((input.k.a || input.k.arrowleft) ?? 0),
     ((input.k.s || input.k.arrowdown) ?? 0) - ((input.k.w || input.k.arrowup) ?? 0),
-  ).norm().mul(PLRCON.speed);
+  ).norm().mul(PLRCON.speed * (1/PLRCON.drag));
 
   if (d.mag > 0) {
     var o = plr.anim.f;
@@ -54,7 +84,7 @@ function loop() {
   if (cam.pos.x > (WSIZE - 1) * SQSIZE - center.x)
     cam.pos.x = (WSIZE - 1) * SQSIZE - center.x;
   if (cam.pos.y > (WSIZE - 1) * SQSIZE - center.y)
-    cam.pos.y = (WSIZE - 1) * SQSIZE  - center.y;
+    cam.pos.y = (WSIZE - 1) * SQSIZE - center.y;
   if (cam.pos.x < center.x)
     cam.pos.x = center.x;
   if (cam.pos.y < center.y)
@@ -84,7 +114,7 @@ function loop() {
         if (c == undefined)
           continue;
         c = c[camp.y];
-        if (c == undefined)
+        if (c == undefined || c.ref.hide)
           continue;
 
         var p = camp.mul(SQSIZE);
@@ -97,6 +127,8 @@ function loop() {
       }
     }
   }
+
+  mousedown = input.m.l;
 
   draw();
 }

@@ -1,9 +1,10 @@
 class Tileref {
-  constructor(id, tex) {
+  constructor(id, tex, hide) {
     this.id = id;
     this.texname = 'tile_' + id;
     if (tex)
       ge.loadpic(tex, this.texname);
+    this.hide = hide;
   }
 
   get tex() {
