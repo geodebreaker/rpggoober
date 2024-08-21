@@ -4,7 +4,7 @@ function initWorld() {
   world.actors = {};
   world.tiles = [];
 
-  for (var k = 0; k < 3; k++) {
+  for (var k = 0; k < 4; k++) {
     var tmp = new Array(WSIZE);
     for (var i = 0; i < WSIZE; i++) {
       var tmp2 = new Array(WSIZE);
@@ -12,13 +12,13 @@ function initWorld() {
 
         var type;
         if (k == 0)
-          type = 1;
+          type = 'grass';
         else if (
           k == 1 &&
           (i == 0 || i == WSIZE - 1 || j == 0 || j == WSIZE - 1 || Math.random() < 0.1))
-          type = 2;
+          type = 'block';
         else
-          type = 0;
+          type = '';
 
         tmp2[j] = new Tile(
           new V(i, j),

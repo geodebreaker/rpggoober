@@ -4,11 +4,15 @@ class Tileref {
     this.texname = 'tile_' + id;
     if (tex)
       ge.loadpic(tex, this.texname);
-    this.hide = hide;
+    this.phide = hide;
   }
 
   get tex() {
     return ge.getpic(this.texname);
+  }
+
+  get hide(){
+    return this.phide && !(SHOWHIDDEN && !this.id == '');
   }
 }
 

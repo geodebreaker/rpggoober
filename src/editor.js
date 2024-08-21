@@ -2,7 +2,7 @@ var editor = {
   state: 'panel',
   mouse: new V(0, 0),
   mousedown: false,
-  brush: '2',
+  brush: 'block',
   newbrush: '',
   pos: new V(0, 0),
   keydown: false,
