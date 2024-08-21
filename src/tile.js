@@ -11,6 +11,6 @@ class Tile {
   }
 
   get ref(){
-    return tileset[this.type] == undefined ? tileset[''] : this.pref;
+    return tileset[this.type] == undefined ? tileset[''] : tileset[this.type];
   }
 }
