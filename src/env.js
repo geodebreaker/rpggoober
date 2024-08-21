@@ -9,4 +9,6 @@ var PLRCON = {
   drag: 0.5,
 };
 
-var EDWIDTH = SQSIZE * 5 + 8;
+var EDMARGIN = 6;
+var EDHCNT = 5;
+var EDWIDTH = SQSIZE * EDHCNT + EDMARGIN * 2;
