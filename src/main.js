@@ -3,18 +3,20 @@ var cam;
 
 function start() {
   ge.loadpic('select.png', 'select');
+
   initTileset({
-    0: ['', true],
-    1: ['grass.png', false],
-    2: ['block.png', false],
-    3: ['grass_l.png', false],
-    4: ['grass_r.png', false],
-    5: ['grass_u.png', false],
-    6: ['grass_d.png', false],
-    7: ['grass_lu.png', false],
-    8: ['grass_rd.png', false],
-    9: ['grass_ur.png', false],
-    10: ['grass_dl.png', false],
+    '': ['', true],
+    'trigger': ['trigger.png', true],
+    'grass': ['grass.png', false],
+    'block': ['block.png', false],
+    4: ['grass_l.png', false],
+    5: ['grass_r.png', false],
+    6: ['grass_u.png', false],
+    7: ['grass_d.png', false],
+    8: ['grass_lu.png', false],
+    9: ['grass_rd.png', false],
+    10: ['grass_ur.png', false],
+    11: ['grass_dl.png', false],
   });
   initWorld();
 
@@ -58,6 +60,11 @@ function loop() {
   plr.vel.add(d).mul(PLRCON.drag);
   plr.pos.add(plr.vel);
 
+  plrtrigger().forEach(x => mkdraw(Infinity, x => {
+    __.img(ge.getpic('select'),
+      [x[1] * SQSIZE, x[2] * SQSIZE, SQSIZE, SQSIZE])
+  }, x))
+
   if (cam.fixed)
     cam.pos = new V(plr.pos);
   if (cam.pos.x > (WSIZE - 1) * SQSIZE - center.x)
@@ -76,7 +83,7 @@ function loop() {
 
   var h = Math.ceil(HEIGHT / SQSIZE) + 1;
   var w = Math.ceil(WIDTH / SQSIZE) + 1;
-  for (var z = 0; z < 2; z++) {
+  for (var z = 0; z < world.tiles.length; z++) {
     for (var i = 0; i < w; i++) {
       for (var j = 0; j < h; j++) {
         var camp = new V(cam.pos).sub(center).div(SQSIZE);
@@ -93,7 +100,7 @@ function loop() {
 
         var p = camp.mul(SQSIZE);
         mkdraw(
-          z == 2 ? p.y : -Infinity,
+          z == 2 ? p.y : z == 3 ? Infinity : -Infinity,
           (c, px, py) => {
             __.img(c.ref.tex, [px, py, SQSIZE, SQSIZE]);
           }, c, p.x, p.y
@@ -123,10 +130,33 @@ function draw() {
     _.save();
     _.rect(WIDTH, 0, EDWIDTH, HEIGHT);
     _.clip();
-    _.translate(WIDTH+EDMARGIN, EDMARGIN);
+    _.translate(WIDTH + EDMARGIN, EDMARGIN);
     eddraw();
     _.restore();
   }
 }
 
 ge.start();
+
+function plrtrigger() {
+  var p = new V(plr.pos).div(SQSIZE);
+  var pf = new V(Math.floor(p.x), Math.floor(p.y));
+  var pc = new V(Math.ceil(p.x), Math.ceil(p.y));
+  var pa = new V(pf.x, pc.y);
+  var pb = new V(pc.x, pf.y);
+  p = [pf, pc, pa, pb];
+  var t = [];
+  for (var k = 0; k < world.tiles.length; k++) {
+    for (var i = 0; i < 4; i++) {
+      var x = world.tiles[k][p[i].x];
+      if (x == undefined)
+        continue;
+      x = x[p[i].y];
+      if (x == undefined)
+        continue;
+      if (x.type == 'trigger')
+        t.push([k, p[i].x, p[i].y])
+    }
+  }
+  return t;
+}

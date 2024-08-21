@@ -8,6 +8,9 @@ class Tile {
 
   update(){
     this.dat.type = this.type;
-    this.ref = tileset[this.type];
+  }
+
+  get ref(){
+    return tileset[this.type] == undefined ? tileset[''] : this.pref;
   }
 }
