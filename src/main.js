@@ -4,9 +4,17 @@ var cam;
 function start() {
   ge.loadpic('select.png', 'select');
   initTileset({
-    0: ['', true, 1],
-    1: ['grass.png', false, 2],
-    2: ['bush.png', false, 3],
+    0: ['', true],
+    1: ['grass.png', false],
+    2: ['block.png', false],
+    3: ['grass_l.png', false],
+    4: ['grass_r.png', false],
+    5: ['grass_u.png', false],
+    6: ['grass_d.png', false],
+    7: ['grass_lu.png', false],
+    8: ['grass_rd.png', false],
+    9: ['grass_ur.png', false],
+    10: ['grass_dl.png', false],
   });
   initWorld();
 
@@ -85,7 +93,7 @@ function loop() {
 
         var p = camp.mul(SQSIZE);
         mkdraw(
-          z == 1 ? p.y : -Infinity,
+          z == 2 ? p.y : -Infinity,
           (c, px, py) => {
             __.img(c.ref.tex, [px, py, SQSIZE, SQSIZE]);
           }, c, p.x, p.y
@@ -115,6 +123,7 @@ function draw() {
     _.save();
     _.rect(WIDTH, 0, EDWIDTH, HEIGHT);
     _.clip();
+    _.translate(WIDTH+EDMARGIN, EDMARGIN);
     eddraw();
     _.restore();
   }
