@@ -4,9 +4,9 @@ var cam;
 function start() {
   ge.loadpic('select.png', 'select');
   initTileset({
-    0: ['', true],
-    1: ['grass.png', false],
-    2: ['bush.png', false],
+    0: ['', true, 1],
+    1: ['grass.png', false, 2],
+    2: ['bush.png', false, 3],
   });
   initWorld();
 
@@ -20,6 +20,7 @@ function start() {
     ],
   );
   plr.anim.f = 1;
+  plr.ctrl = true;
 
   cam = {
     pos: new V(0, 0),
@@ -28,50 +29,15 @@ function start() {
 }
 
 var center;
-var mouse;
-var mousedown;
-var mousetype;
 function loop() {
-  // WIDTH /= 2;
-  // HEIGHT /= 2;
+  editorLoop();
 
   center = new V(WIDTH, HEIGHT).sub(SQSIZE).mul(0.5);
-  mouse = new V(
-    Math.floor((input.m.x + cam.pos.x - center.x) / SQSIZE),
-    Math.floor((input.m.y + cam.pos.y - center.y) / SQSIZE)
-  );
-
-  // mkdraw(
-  //   Infinity,
-  //   () => {
-  //     __.text(`(${mouse.x}, ${mouse.y})`, cam.pos.x-center.x, cam.pos.y-center.y+5, "white")
-  //   }
-  // );
-  mkdraw(
-    Infinity,
-    () => {
-      __.img(ge.getpic('select'), [mouse.x * SQSIZE, mouse.y * SQSIZE, SQSIZE, SQSIZE], undefined, 0.5)
-    }
-  );
-
-  if (
-    input.m.l &&
-    mouse.x >= 0 && mouse.x < WSIZE &&
-    mouse.y >= 0 && mouse.y < WSIZE
-  ) {
-    var t = world.tiles[1][mouse.x][mouse.y];
-    if (!mousedown)
-      mousetype = t.type == 0 ? 2 : 0;
-    if (t.type != mousetype) {
-      t.type = mousetype;
-      t.update();
-    }
-  }
 
   var d = new V(
     ((input.k.d || input.k.arrowright) ?? 0) - ((input.k.a || input.k.arrowleft) ?? 0),
     ((input.k.s || input.k.arrowdown) ?? 0) - ((input.k.w || input.k.arrowup) ?? 0),
-  ).norm().mul(PLRCON.speed * (1 / PLRCON.drag));
+  ).norm().mul(PLRCON.speed * (1 / PLRCON.drag) * plr.ctrl);
 
   if (d.mag > 0) {
     var o = plr.anim.f;
@@ -99,11 +65,6 @@ function loop() {
     var i = plr.anim.current;
     __.img(i, [plr.pos.x, plr.pos.y, SQSIZE, SQSIZE]);
   });
-
-  // mkdraw(Infinity, () => {
-  //   var i = plr.anim.current;
-  //   __.img(i, [plr.pos.x, plr.pos.y, SQSIZE, SQSIZE]);
-  // });
 
   var h = Math.ceil(HEIGHT / SQSIZE) + 1;
   var w = Math.ceil(WIDTH / SQSIZE) + 1;
@@ -133,8 +94,6 @@ function loop() {
     }
   }
 
-  mousedown = input.m.l;
-
   draw();
 }
 
@@ -151,6 +110,14 @@ function draw() {
   todraw.forEach(x => x.cb(...x.d));
   todraw = [];
   _.restore();
+
+  if (editor.state != 'off') {
+    _.save();
+    _.rect(WIDTH, 0, EDWIDTH, HEIGHT);
+    _.clip();
+    eddraw();
+    _.restore();
+  }
 }
 
 ge.start();
