@@ -10,7 +10,8 @@ start = () => { };
 loop = () => { };
 
 ge = {
-  pic: {}
+  pic: {},
+  cache: {}
 };
 
 ge.c = $('canvas');
@@ -54,8 +55,15 @@ ge.stop = () => {
 };
 
 ge.loadpic = async (filename, name, ext) => {
-  ge.pic[name] = new Image();
-  ge.pic[name].src = (ext ? '' : 'static/') + filename;
+  var x;
+  if (ge.cache[filename] != undefined) {
+    x = ge.cache[filename];
+  } else {
+    x = new Image();
+    x.src = (ext ? '' : 'static/') + filename;
+    ge.cache[filename] = x;
+  }
+  ge.pic[name] = x;
 };
 
 ge.getpic = (name) => {
@@ -443,7 +451,7 @@ function raycast(pos, dir, a, b) { //raycast
   return [new V(x1 + t * (x2 - x1), y1 + t * (y2 - y1)), t, u];
 }
 
-vec0 = new V(0, 0);
+window.__defineGetter__('vec0', () => new V(0, 0));
 
 function arrowwrap(t, f, a = []) {
   Function('(' + f.toString() + ').apply(this, arguments)').apply(t, a);
