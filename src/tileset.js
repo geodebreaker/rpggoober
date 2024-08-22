@@ -5,6 +5,7 @@ class Tileref {
     if (tex)
       ge.loadpic(tex, this.texname);
     this.phide = hide;
+    this.texpath = tex;
   }
 
   get tex() {
@@ -17,7 +18,9 @@ class Tileref {
 }
 
 var tileset;
+var tilesetuninit;
 function initTileset(tiles) {
+  tilesetuninit = tiles;
   tileset = {};
 
   for (var i in tiles) {
