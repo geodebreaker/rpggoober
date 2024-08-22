@@ -1,12 +1,19 @@
 var editor = {
   state: 'panel',
+  page: 'pallete',
   mouse: new V(0, 0),
   mousedown: false,
-  brush: 'block',
+  brush: 'block_0000',
   newbrush: '',
   pos: new V(0, 0),
   keydown: false,
+  console: '',
 };
+var validprop = [
+  'trigger',
+  'interact',
+  'hover'
+];
 
 function editorLoop() {
   if (input.k.e && !editor.keydown)
@@ -43,7 +50,7 @@ function editorLoop() {
 
       if (input.m.l) {
         if (!editor.mousedown)
-          editor.newbrush = t.type == editor.brush ? 0 : editor.brush;
+          editor.newbrush = t.type == editor.brush ? '' : editor.brush;
         if (t.type != editor.newbrush) {
           t.type = editor.newbrush;
           t.update();
@@ -61,6 +68,13 @@ function editorLoop() {
 }
 
 function eddraw() {
+  if (editor.page == 'pallete')
+    eddrawpallete();
+  if (editor.page == 'console')
+    eddrawconsole();
+}
+
+function eddrawpallete() {
   var i = 0;
   var sp = false;
   for (var n in tileset) {
@@ -71,19 +85,37 @@ function eddraw() {
     __.img(tileset[n].tex, [p.x, p.y, SQSIZE, SQSIZE]);
 
     var w = WIDTH + 4;
-    if(
-      input.m.l && 
-      input.m.x > p.x + w && 
-      input.m.x < p.x + w + SQSIZE && 
-      input.m.y > p.y && 
+    if (
+      input.m.l &&
+      input.m.x > p.x + w &&
+      input.m.x < p.x + w + SQSIZE &&
+      input.m.y > p.y &&
       input.m.y < p.y + SQSIZE)
       editor.brush = n;
 
-    if(n == editor.brush)
+    if (n == editor.brush)
       sp = p;
-    
+
     i++;
   }
-  if(sp)
-    __.img(ge.getpic('select'), [sp.x, sp.y, SQSIZE, SQSIZE])
+  if (sp)
+    __.img(ge.getpic('select'), [sp.x, sp.y, SQSIZE, SQSIZE]);
+}
+
+function eddrawconsole() {
+  edcon()
+}
+
+function ederr(...x) {
+  editor.console += '!> ' + x.join(' ') + '\n';
+}
+
+function edlog(...x) {
+  editor.console += '?> ' + x.join(' ') + '\n';
+}
+
+function edcon() {
+  var x = editor.console.split('\n');
+  while (x.length > 40) x.shift();
+  x.forEach((x, i) => __.text(x, 0, i * 18, "white", 13, "black", 2))
 }

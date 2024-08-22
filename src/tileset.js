@@ -11,7 +11,7 @@ class Tileref {
     return ge.getpic(this.texname);
   }
 
-  get hide(){
+  get hide() {
     return this.phide && !(SHOWHIDDEN && !this.id == '');
   }
 }

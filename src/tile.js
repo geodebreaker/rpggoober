@@ -6,11 +6,11 @@ class Tile {
     this.update();
   }
 
-  update(){
+  update() {
     this.dat.type = this.type;
   }
 
-  get ref(){
+  get ref() {
     return tileset[this.type] == undefined ? tileset[''] : tileset[this.type];
   }
 }

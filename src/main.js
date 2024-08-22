@@ -4,20 +4,18 @@ var cam;
 function start() {
   ge.loadpic('select.png', 'select');
 
-  initTileset({
+  var ts = {
     '': ['', true],
     'trigger': ['trigger.png', true],
     'grass': ['grass.png', false],
-    'block': ['block.png', false],
-    4: ['grass_l.png', false],
-    5: ['grass_r.png', false],
-    6: ['grass_u.png', false],
-    7: ['grass_d.png', false],
-    8: ['grass_lu.png', false],
-    9: ['grass_rd.png', false],
-    10: ['grass_ur.png', false],
-    11: ['grass_dl.png', false],
-  });
+  };
+  [
+    '0000','0001','0010','0011',
+    '0100','0101','0110','0111',
+    '1000','1001','1010','1011',
+    '1100','1101','1110','1111',
+  ].forEach(b=>ts['block_'+b]=['blocks/'+b+'.png', false]);
+  initTileset(ts);
   initWorld();
 
   plr = new Actor(
@@ -36,6 +34,9 @@ function start() {
     pos: new V(0, 0),
     fixed: true,
   }
+
+  prevtrigger = [];
+  plrinteract = false;
 }
 
 var center;
@@ -50,20 +51,13 @@ function loop() {
   ).norm().mul(PLRCON.speed * (1 / PLRCON.drag) * plr.ctrl);
 
   if (d.mag > 0) {
-    var o = plr.anim.f;
     plr.anim.f = Math.floor((d.head - 45) / 90) + 2;
-    if (o != plr.anim.f) {
-      plr.anim.l[plr.anim.f].resetTime();
-    }
   }
 
   plr.vel.add(d).mul(PLRCON.drag);
   plr.pos.add(plr.vel);
 
-  plrtrigger().forEach(x => mkdraw(Infinity, x => {
-    __.img(ge.getpic('select'),
-      [x[1] * SQSIZE, x[2] * SQSIZE, SQSIZE, SQSIZE])
-  }, x))
+  triggerLoop();
 
   if (cam.fixed)
     cam.pos = new V(plr.pos);
@@ -75,11 +69,6 @@ function loop() {
     cam.pos.x = center.x;
   if (cam.pos.y < center.y)
     cam.pos.y = center.y;
-
-  mkdraw(plr.pos.y, () => {
-    var i = plr.anim.current;
-    __.img(i, [plr.pos.x, plr.pos.y, SQSIZE, SQSIZE]);
-  });
 
   var h = Math.ceil(HEIGHT / SQSIZE) + 1;
   var w = Math.ceil(WIDTH / SQSIZE) + 1;
@@ -108,6 +97,8 @@ function loop() {
       }
     }
   }
+
+  drawActors();
 
   draw();
 }
@@ -138,14 +129,45 @@ function draw() {
 
 ge.start();
 
-function plrtrigger() {
+var prevtrigger;
+var plrinteract;
+function triggerLoop() {
+  var x = getCollisions().filter(x => x.dat.trigger || x.dat.interact);
+
+  x.forEach(x => {
+    try {
+      if (x.dat.trigger && prevtrigger.every(y => x != y))
+        new Function(x.dat.trigger).apply(x)
+      if (x.dat.interact && input.k.enter && !plrinteract)
+        new Function(x.dat.interact).apply(x)
+      if (x.dat.hover)
+        new Function(x.dat.hover).apply(x)
+    } catch (e) {
+      ederr(e.message)
+    }
+  });
+
+  prevtrigger = x;
+  plrinteract = input.k.enter;
+}
+
+function collisionLoop() {
+  var c = getCollisions();
+
+}
+
+function resCollision() {
+
+}
+
+function getCollisions() {
   var p = new V(plr.pos).div(SQSIZE);
   var pf = new V(Math.floor(p.x), Math.floor(p.y));
   var pc = new V(Math.ceil(p.x), Math.ceil(p.y));
   var pa = new V(pf.x, pc.y);
   var pb = new V(pc.x, pf.y);
   p = [pf, pc, pa, pb];
-  var t = [];
+  var c = [];
   for (var k = 0; k < world.tiles.length; k++) {
     for (var i = 0; i < 4; i++) {
       var x = world.tiles[k][p[i].x];
@@ -154,9 +176,8 @@ function plrtrigger() {
       x = x[p[i].y];
       if (x == undefined)
         continue;
-      if (x.type == 'trigger')
-        t.push([k, p[i].x, p[i].y])
+      c.push(x)
     }
   }
-  return t;
+  return c;
 }

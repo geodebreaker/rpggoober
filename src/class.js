@@ -4,11 +4,11 @@ class Animation {
     this.f = 0;
     this.s = speed;
     this.t = 0;
+    this.x = path;
 
     for (var i = 0; i < count; i++) {
-      var x = new Image();
-      x.src = 'static/' + i + '_' + path;
-      this.p.push(x);
+      ge.loadpic(i + '_' + path, 'anim_' + i + '_' + path);
+      this.p.push(ge.getpic('anim_' + i + '_' + path));
     }
   }
 
