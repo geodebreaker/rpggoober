@@ -1,14 +1,14 @@
 class Actor {
-  constructor(pos, anim, tags, hb, dat) {
+  constructor(pos, anim, tags='', dat={}, hb=new V(0, 0)) {
     this.id = newid();
-    this.tags = tags;
+    this.tags = tags.split(' ');
 
     this.dat = dat;
 
     this.pos = pos;
     this.vel = new V(0, 0);
 
-    this.hitbox = new Hitbox(hb, this);
+    this.hitbox = new Hitbox(new V(hb.x, hb.y), this);
 
     this.anim = {
       l: [],
@@ -34,14 +34,20 @@ class Actor {
     world.actors[this.id] = this;
   }
 
-  draw(){
+  draw() {
     mkdraw(this.pos.y, () => {
       __.img(this.anim.current, [this.pos.x, this.pos.y, SQSIZE, SQSIZE])
     })
   }
 
-  serialize(){
-
+  serialize() {
+    return [
+      { x: this.pos.x, y: this.pos.y },
+      this.anim.l.map(l => [l.x, l.p.length, l.s]),
+      this.tags,
+      this.dat,
+      this.hitbox.h,
+    ];
   }
 }
 
@@ -62,11 +68,11 @@ class Hitbox {
   }
 
   get a() {
-    return new V(h).add(this.rel.pos)
+    return new V(h).add(this.rel.pos).add(0, SQSIZE)
   }
 
   get b() {
-    return new V(h).mul(-1).add(this.rel.pos)
+    return new V(h).mul(-1).add(this.rel.pos).add(0, SQSIZE)
   }
 
   get o() {

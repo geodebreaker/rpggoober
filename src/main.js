@@ -26,6 +26,9 @@ function start() {
       ['plr_idle_r.png', 1, 0.5],
       ['plr_idle_u.png', 1, 0.5],
     ],
+    'plr',
+    {},
+    new V(32, 16),
   );
   plr.anim.f = 1;
   plr.ctrl = true;

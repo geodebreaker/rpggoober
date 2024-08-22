@@ -62,6 +62,7 @@ function getActorTag(...tags) {
 async function serializeWorld() {
   return await compress(JSON.stringify({
     tiles: world.tiles.map(l => l.map(w => w.map(t => t.dat))),
-    actors: Object.keys(world.actors).map(id=>world.actors[id].serialize())
+    actors: Object.keys(world.actors).map(id=>world.actors[id].serialize()),
+    tileset: tilesetuninit,
   }));
 }
