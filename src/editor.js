@@ -8,6 +8,7 @@ var editor = {
   pos: new V(0, 0),
   keydown: false,
   console: '',
+  layer: 1,
 };
 var validprop = [
   'trigger',
@@ -43,7 +44,7 @@ function editorLoop() {
   );
 
 
-  var t = world.tiles[1][editor.mouse.x];
+  var t = world.tiles[editor.layer][editor.mouse.x];
   if (t != undefined && input.m.x <= WIDTH) {
     t = t[editor.mouse.y];
     if (t != undefined) {
@@ -84,13 +85,13 @@ function eddrawpallete() {
     var p = new V(i % EDHCNT, Math.floor(i / EDHCNT)).mul(SQSIZE);
     __.img(tileset[n].tex, [p.x, p.y, SQSIZE, SQSIZE]);
 
-    var w = WIDTH + 4;
+    var w = WIDTH + EDMARGIN;
     if (
       input.m.l &&
       input.m.x > p.x + w &&
       input.m.x < p.x + w + SQSIZE &&
-      input.m.y > p.y &&
-      input.m.y < p.y + SQSIZE)
+      input.m.y > p.y + EDTOP &&
+      input.m.y < p.y + EDTOP + SQSIZE)
       editor.brush = n;
 
     if (n == editor.brush)

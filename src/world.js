@@ -30,12 +30,12 @@ function initWorld() {
     }
     world.tiles[k] = tmp;
   }
-  world.tiles[1][5][5].type = 'trigger';
-  world.tiles[1][5][5].dat.hover =
+  world.tiles[1][16][16].type = 'trigger';
+  world.tiles[1][16][16].dat.hover =
     'mkdraw(Infinity, x=>__.text("interact", x.pos.x*SQSIZE, x.pos.y*SQSIZE, "white", 20, "black", 3), this)';
-  world.tiles[1][5][5].dat.interact =
-    'plr.pos.x = 1000';
-  world.tiles[1][5][5].update();
+  world.tiles[1][16][16].dat.interact =
+    'ge.menu = "mp"';
+  world.tiles[1][16][16].update();
 }
 
 function newid() {

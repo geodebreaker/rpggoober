@@ -5,16 +5,24 @@ function start() {
   ge.loadpic('select.png', 'select');
 
   var ts = {
-    '': ['', true],
-    'trigger': ['trigger.png', true],
-    'grass': ['grass.png', false],
+    '': ['', true, "---------"],
+    'trigger': ['trigger.png', true, "---------"],
+    'grass': ['grass.png', false, "---------"],
+    'bed_0': ['bed_0.png', false, "---------"],
+    'bed_1': ['bed_1.png', false, "---------"],
+    'water': ['water.png', false, "*********"],
+    'wood': ['wood.png', false, "---------"],
   };
   [
-    '0000','0001','0010','0011',
-    '0100','0101','0110','0111',
-    '1000','1001','1010','1011',
-    '1100','1101','1110','1111',
-  ].forEach(b=>ts['block_'+b]=['blocks/'+b+'.png', false]);
+    '0000', '0001', '0010', '0011',
+    '0100', '0101', '0110', '0111',
+    '1000', '1001', '1010', '1011',
+    '1100', '1101', '1110', '1111',
+  ].forEach(b =>
+    ts['block_' + b] = ['blocks/' + b + '.png', false,
+    new Array(4).fill('').map((x, i) => (b[i] == 0 ? '-' : '*') + '*').join('')
+    ]
+  );
   initTileset(ts);
   initWorld();
 
@@ -124,7 +132,7 @@ function draw() {
     _.save();
     _.rect(WIDTH, 0, EDWIDTH, HEIGHT);
     _.clip();
-    _.translate(WIDTH + EDMARGIN, EDMARGIN);
+    _.translate(WIDTH + EDMARGIN, EDTOP);
     eddraw();
     _.restore();
   }

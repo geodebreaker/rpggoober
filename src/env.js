@@ -12,5 +12,7 @@ var PLRCON = {
 var SHOWHIDDEN = false;
 
 var EDMARGIN = 6;
+var EDTAB = new V(64, 32);
+var EDTOP = EDTAB.y + EDMARGIN * 2;
 var EDHCNT = 5;
 var EDWIDTH = SQSIZE * EDHCNT + EDMARGIN * 2;
