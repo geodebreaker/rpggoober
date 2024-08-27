@@ -43,7 +43,8 @@ function start() {
 
   cam = {
     pos: new V(0, 0),
-    fixed: true,
+    fixed: plr,
+    fixspeed: 0.5,
   }
 
   prevtrigger = [];
@@ -71,7 +72,7 @@ function loop() {
   triggerLoop();
 
   if (cam.fixed)
-    cam.pos = new V(plr.pos);
+    cam.pos.add(new V(cam.fixed.pos).sub(cam.pos).mul(cam.fixspeed));
   if (cam.pos.x > (WSIZE - 1) * SQSIZE - center.x)
     cam.pos.x = (WSIZE - 1) * SQSIZE - center.x;
   if (cam.pos.y > (WSIZE - 1) * SQSIZE - center.y)

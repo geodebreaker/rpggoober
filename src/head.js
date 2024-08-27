@@ -42,13 +42,12 @@ ge.loop = () => {
 
   // $('#fps').innerText = "fps: "+Math.round(1/dt)+" / "+FPS
 
-  if(ge.menu && !ge.lastmenu){
+  if (ge.menu && !ge.lastmenu) {
     ge.screen = document.createElement('canvas');
     ge.screen.width = ge.c.width;
     ge.screen.height = ge.c.height;
     ge.screen.getContext('2d').drawImage(ge.c, 0, 0);
-  } 
-  ge.lastmenu = ge.menu;
+  }
 
   _ = ge.c.getContext('2d');
 
@@ -57,10 +56,13 @@ ge.loop = () => {
 
   _.imageSmoothingEnabled = false;
 
-  if(ge.menu)
+  if (ge.menu) {
     menu(dt);
-  else
+    ge.lastmenu = ge.menu;
+  } else {
+    ge.lastmenu = ge.menu;
     loop(dt);
+  }
 };
 
 ge.stop = () => {

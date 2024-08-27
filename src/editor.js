@@ -5,7 +5,7 @@ var editor = {
   mousedown: false,
   brush: 'block_0000',
   newbrush: '',
-  pos: new V(0, 0),
+  pos: 0,
   keydown: false,
   console: '',
   layer: 1,
@@ -101,6 +101,20 @@ function eddrawpallete() {
   }
   if (sp)
     __.img(ge.getpic('select'), [sp.x, sp.y, SQSIZE, SQSIZE]);
+
+  var z = editor.layer / 3;
+  __.rect(30, HEIGHT - EDTOP - EDMARGIN - 15, EDWIDTH - EDMARGIN * 2 - 30, 15, "black", "#444", 4);
+  __.rect(32, HEIGHT - EDTOP - EDMARGIN - 13, (EDWIDTH - EDMARGIN * 2 - 34) * z, 11, "white");
+  __.rect((EDWIDTH - EDMARGIN * 2 - 38) * z + 25, HEIGHT - EDTOP - EDMARGIN - 12.5, 10, 10, "white", "black", 2);
+  __.text(editor.layer, 2, HEIGHT - EDTOP - EDMARGIN - 13, "white", 15, "black", 2);
+  if(
+    input.m.l &&
+    input.m.x > WIDTH + EDMARGIN + 30 &&
+    input.m.x < WIDTH + EDMARGIN + EDWIDTH - 15 &&
+    input.m.y > HEIGHT - EDTOP - EDMARGIN + 30 &&
+    input.m.y < HEIGHT - EDTOP - EDMARGIN + 45
+  )
+  editor.layer = Math.round((input.m.x - (WIDTH + EDMARGIN + 30)) / (EDWIDTH + 15) * 4);
 }
 
 function eddrawconsole() {
@@ -118,5 +132,5 @@ function edlog(...x) {
 function edcon() {
   var x = editor.console.split('\n');
   while (x.length > 40) x.shift();
-  x.forEach((x, i) => __.text(x, 0, i * 18, "white", 13, "black", 2))
+  x.forEach((x, i) => __.text(x, 0, i * 18, "white", 13, "black", 2));
 }
